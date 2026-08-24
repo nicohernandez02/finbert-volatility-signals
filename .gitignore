@@ -1,0 +1,34 @@
+# Data & pipeline outputs
+# Everything in this pipeline is read from / written to gs://assesment2-dc —
+# the raw 2.4M-row FNSPID CSV (~22GB) and every checkpoint (01_df_clean,
+# 02_df_stocks, 03_df_joined, 04_pd_news, results/*) live in GCS, never in
+# this repo. These patterns keep it that way if it's ever run from a clone.
+*.csv
+*.tsv
+*.parquet
+*.pkl
+*.pickle
+/data/
+/checkpoints/
+/outputs/
+/results/
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# GCP credentials, if anyone adds a service-account key locally
+service-account*.json
+*.gcloud/
+
+# OS junk
+.DS_Store
+Thumbs.db

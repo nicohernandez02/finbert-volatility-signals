@@ -1,0 +1,20 @@
+# Reconstructed from the imports and inline `pip install` calls in
+# "Code with outputs.html" — no requirements/environment file shipped with
+# the repo before this pass, and no versions were pinned in the original
+# notebook, so none are pinned here either. pyspark itself is not listed:
+# the notebook assumes a `spark` SparkSession already exists in scope
+# (e.g. a Dataproc/Jupyter PySpark kernel) rather than creating one, and
+# never imports the pyspark package installer itself.
+
+pandas
+numpy
+yfinance
+vaderSentiment
+transformers
+torch
+tqdm
+xgboost
+scikit-learn
+scipy
+matplotlib
+seaborn
