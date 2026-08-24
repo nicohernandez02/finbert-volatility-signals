@@ -85,24 +85,22 @@ newsy day — is where it earns its keep.
 ## Layout
 
 ```
-Code with outputs.html   the notebook, exported with all cell outputs — both
-                          the PySpark data pipeline and the XGBoost modelling
-                          are here as one file (see "Reproducing" below)
+pipeline.ipynb            the source notebook — both the PySpark data
+                          pipeline and the XGBoost modelling live here
+Code with outputs.html   the same notebook exported with all cell outputs,
+                          kept as evidence of a completed run (GCP execution
+                          is not cheap to redo just to regenerate this)
 requirements.txt          Python packages the notebook imports/pip-installs
                           (added in this pass — the repo shipped without one)
 .gitignore                 keeps checkpoints, GCS-scale data and Jupyter/OS
                           junk out of git (added in this pass — see below)
 ```
 
-There is no `.ipynb` in the repo, only its HTML export — the raw code
-cells can be read out of the HTML (each is a `jp-CodeCell`), but there is
-currently no way to open and re-run this as a live notebook without first
-reconstructing one from that export.
-
 ## Reproducing
 
-This is not a "clone and run" pipeline — parts of it are hard-wired to
-the author's own infrastructure:
+`pipeline.ipynb` opens and runs as an ordinary Jupyter notebook, but this
+is not a "clone and run" pipeline — parts of it are hard-wired to the
+author's own infrastructure:
 
 - **Part 1 (data pipeline) needs a Spark cluster**, specifically one that
   hands the notebook a live `spark` `SparkSession` (e.g. a GCP Dataproc
@@ -145,6 +143,12 @@ GCS-only.
   both are added above.
 - **No stray junk** (`.DS_Store`, `.ipynb_checkpoints`, empty
   placeholders) was found in the repo.
+- **`pipeline.ipynb` was scanned for leaked credentials before adding** —
+  no API keys, tokens or passwords were found. It does reference a GCS
+  bucket name (`gs://assesment2-dc`); a bucket name alone isn't a secret
+  (it grants no access without separate IAM credentials), so it was left
+  as-is, same treatment as the bucket/project references documented in
+  the sibling repos.
 - One code cell in Part 1 (Spark session setup) contains bare
   `--num-executors 2 --executor-cores 2 --executor-memory 2G
   --driver-memory 2G` as if it were a shell command, which raises a
@@ -153,8 +157,25 @@ GCS-only.
   magic arguments that were pasted into a code cell instead of the
   kernel's config field; harmless to the rest of the run since every
   later cell re-checks its checkpoint before doing any work, but worth
-  fixing or removing if the notebook is reconstructed as a runnable
-  `.ipynb`.
+  fixing if you ever re-run this end-to-end.
+
+## Known gaps
+
+Things worth knowing before you trust or rerun this pipeline, that
+aren't fixable from the repo alone:
+
+- **TSLA silently drops out.** Present through the price join (8,420
+  articles), absent from the final FinBERT-labeled checkpoint (14 of 15
+  stocks). Nothing in the notebook explains why — re-running Part 1 with
+  logging on the per-stock counts at each stage would be the way to find
+  out.
+- **The VADER-vs-FinBERT comparison never actually ran.** The code to
+  compute it is there, but the checkpoint used in this run has no
+  `vader_sentiment` column, so the comparison silently no-ops. Only the
+  FinBERT distribution in this README is real.
+- **No model outputs are committed** (`model_summary.csv`,
+  `feature_importance_model4.csv`, the results plot) — they're GCS-only,
+  per the notebook's own design, not an oversight of this pass.
 
 ## Context
 
